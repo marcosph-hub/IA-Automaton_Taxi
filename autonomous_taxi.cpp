@@ -18,10 +18,6 @@ void FileData() {
 
   std::cout << "Introduzca el fichero de configuración config.txt" << std::endl;
   std::cin >> filename;
-  while(filename != "config.txt") {
-  std::cout << "Error al introducir el nombre del fichero, porfavor introduzca el fichero de configuración config.txt" << std::endl;
-  std::cin >> filename;
-  }
   std::ifstream file(filename.c_str());
   if (!file.good()) {
     std::cerr << "Error en la apertura del fichero" << std::endl;
@@ -36,8 +32,8 @@ void FileData() {
   int columns = std::stoi(column_file);
   int int_heuristic = std::stoi(file_heuristic);
   int int_movements = std::stoi(file_movements);
-  assert(row > 0);
-  assert(columns > 0);
+  assert((row > 0 && row < 86 && "Nº filas entre 0 y 85"));
+  assert((columns > 0 && columns < 86 && "Nº columnas entre 0 y 85"));
   Board file_board(row,columns);
 
   //INSERTAR POS DEL COCHE
@@ -118,6 +114,7 @@ int main () {
 
   if (option == 1) {
     FileData();
+    exit(-1);
   } else {
       std::cout << "Describa como desea que sea los movimientos del taxi: " << std::endl;
       std::cout << "(1) Contempla 4 Movimientos (N, S, E, O)\n(2) Contempla 8 Movimientos (N, S, E, O, NE, SE, NO, SO)" << std::endl;
@@ -134,10 +131,11 @@ int main () {
       case 1: { //Entorno Manual
         std::cout << "Introduzca las dimensiones del entorno.\n Ancho del entorno (filas):\t"; 
         std::cin >> rows;
-        assert(rows > 0);
+        assert((rows > 0 && rows < 86 && "Nº filas entre 0 y 85"));
+  
         std::cout << "Largo del entorno (columnas):\t";
         std::cin >> columns;
-        assert(columns > 0);
+        assert((columns > 0 && columns < 86 && "Nº columnas entre 0 y 85"));
         Board manual_board(rows, columns);
         
         std::cout << "Elija como desea meter los obstaculos\n(1) Manual\n(2) Aleatorio" << std::endl;
@@ -196,12 +194,6 @@ int main () {
 
       case 2: { //Entorno por defecto
       Board default_board;
-      std::cout << "Describa como desea que sea los movimientos del taxi: " << std::endl;
-      std::cout << "(1) Contempla 4 Movimientos (N, S, E, O)\n(2) Contempla 8 Movimientos (N, S, E, O, NE, SE, NO, SO)" << std::endl;
-      std::cin >> movement;
-
-      std::cout << "Elija la Función Heurística que desea usar: \n(1) D. Manhattan\n(2) Euclídea" << std::endl;
-      std::cin >> heuristic;
     
       std::cout << "Elija como desea meter los obstaculos\n(1) Manual\n(2) Aleatorio" << std::endl;
       std::cin >> obst_option;
@@ -251,10 +243,11 @@ int main () {
         double time = (double(t1-t0)/CLOCKS_PER_SEC);
         std::cout.precision(5);
         std::cout << "Execution Time: " << std::fixed << time << std::endl;
+        exit(-1);
       }
       break;
     }
   }
-
+  exit(-1);
 }
 
