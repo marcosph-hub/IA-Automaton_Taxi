@@ -28,12 +28,12 @@ class Board {
     Board();
     Board(int row_parameter, int col_parameter);
     ~Board();
-    Cell** get_tableboard();
-    Taxi get_taxi();
+    Cell**& get_tableboard();
+    Taxi& get_taxi();
     int get_rows();
     int get_columns();
-    Cell get_destination();
-    Cell get_start();
+    Cell& get_destination();
+    Cell& get_start();
     void Create_Board();
     void Write();
     void RandomFill();
@@ -43,7 +43,9 @@ class Board {
     void ManualDestination(int x, int y);
     void ManualInsertTaxi(int x, int y);
     void RandomInsertTaxi();
+    Board& operator=(const Board &parametre);
+    void ID_to_Coords(Cell cell);
+    Cell& ExtractCell(Cell parametre);
+    Cell& ExtractByID(int id);
 
-    //*****DELETE******
-    //void WriteCoords();
 };

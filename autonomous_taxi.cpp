@@ -1,5 +1,6 @@
 #include "board.h"
 #include "algorithm.h"
+#include <cstdio>
 
 void FileData() {        
   std::string filename;
@@ -11,6 +12,8 @@ void FileData() {
   std::vector<int> origin_v;
   std::vector<int> dest_v;
   std::vector<int> obst_v;
+  std::string file_heuristic;
+  std::string file_movements;
   int coord;
 
   std::cout << "Introduzca el fichero de configuración config.txt" << std::endl;
@@ -27,8 +30,12 @@ void FileData() {
   //DIMENSION DEL ENTORNO
   getline(file,row_file);
   getline(file,column_file);
+  getline(file,file_heuristic);
+  getline(file,file_movements);
   int row = std::stoi(row_file);
   int columns = std::stoi(column_file);
+  int int_heuristic = std::stoi(file_heuristic);
+  int int_movements = std::stoi(file_movements);
   assert(row > 0);
   assert(columns > 0);
   Board file_board(row,columns);
@@ -66,16 +73,26 @@ void FileData() {
   }
     int row_obst = obst_v[0];
     int col_obst = obst_v[1];
-    assert(row_obst > 0);
-    assert(col_obst > 0);
+    assert(row_obst > -1);
+    assert(col_obst > -1);
     file_board.FillManual(row_obst,col_obst);
     obst_v.clear();
  }
  std::cout << "\033[2J\033[1;1H";
  file_board.Write();
-
+ Board aux;
+ aux = file_board;
+ Algorithm tester(file_board,int_movements, int_heuristic);
+ unsigned t0, t1;
+ t0=clock();
+  tester.A_Star();
+  t1 = clock();
+ tester.Write();
+ 
+  double time = (double(t1-t0)/CLOCKS_PER_SEC);
+  std::cout.precision(5);
+  std::cout << "Execution Time: " << std::fixed << time << std::endl;
 }
-
 
 
 int main () {
@@ -89,11 +106,12 @@ int main () {
   int percent;
   int xcoord;
   int ycoord;
+  int heuristic;
   int movement;
+  unsigned t0, t1;
 
-  std::cout << "Describa como desea que sea los movimientos del taxi: " << std::endl;
-  std::cout << "(1) Contempla 4 Movimientos (N, S, E, O)\n(2) Contempla 8 Movimientos (N, S, E, O, NE, SE, NO, SO)" << std::endl;
-  std::cin >> movement;
+
+
   std::cout << "Elija como desea crear el Entorno: " << std::endl;
   std::cout << "(1) Por Fichero\n(2) Manual\n(0) Salir" << std::endl;
   std::cin >> option;
@@ -101,10 +119,16 @@ int main () {
   if (option == 1) {
     FileData();
   } else {
+      std::cout << "Describa como desea que sea los movimientos del taxi: " << std::endl;
+      std::cout << "(1) Contempla 4 Movimientos (N, S, E, O)\n(2) Contempla 8 Movimientos (N, S, E, O, NE, SE, NO, SO)" << std::endl;
+      std::cin >> movement;
+
+      std::cout << "Elija la Función Heurística que desea usar: \n(1) D. Manhattan\n(2) Euclídea" << std::endl;
+      std::cin >> heuristic;
+
       std::cout << "Elija como desea que sea las dimensiones del Entorno: " << std::endl;
       std::cout << "(1) Dimension por teclado\n(2) Dimenension Por Defecto" << std::endl;
       std::cin >> dim_option;
-
 
       switch (dim_option) {
       case 1: { //Entorno Manual
@@ -121,7 +145,6 @@ int main () {
         if (obst_option == 1) { 
           std::cout << "Ponga el %(nº entero) de obstaculos que desea que haya\n" << std::endl;
           std::cin >> percent;
-          assert(percent > 0);
           manual_board.FillByPercent(percent);
         } else  {
           manual_board.RandomFill();
@@ -157,9 +180,14 @@ int main () {
           manual_board.RandomInsertTaxi();
         }
         std::cout << "\033[2J\033[1;1H";
-        //llamada a la clase ALGORITHM
-        manual_board.Write();
-        Algorithm tester(manual_board);
+        Algorithm tester(manual_board,movement, heuristic);
+        t0=clock();
+        tester.A_Star();
+        t1 = clock();
+        tester.Write();
+        double time = (double(t1-t0)/CLOCKS_PER_SEC);
+        std::cout.precision(5);
+        std::cout << "Execution Time: " << std::fixed << time << std::endl;
       }
       break;
     
@@ -167,34 +195,40 @@ int main () {
 
 
       case 2: { //Entorno por defecto
-        Board default_board;
-        std::cout << "Elija como desea meter los obstaculos\n(1) Manual\n(2) Aleatorio" << std::endl;
-        std::cin >> obst_option;
-        if (obst_option == 1) { 
-          std::cout << "Ponga el %(nº entero) de obstaculos que desea que haya\n" << std::endl;
-          std::cin >> percent;
-          assert(percent > 0);
-          default_board.FillByPercent(percent);
-        } else  {
-          default_board.RandomFill();
-          std::cout << std::endl;
-        }
+      Board default_board;
+      std::cout << "Describa como desea que sea los movimientos del taxi: " << std::endl;
+      std::cout << "(1) Contempla 4 Movimientos (N, S, E, O)\n(2) Contempla 8 Movimientos (N, S, E, O, NE, SE, NO, SO)" << std::endl;
+      std::cin >> movement;
 
-        std::cout << "Elija como desea introducir el Destino\n(1) Destino Manual\n(2) Destino Aleatorio" << std::endl;
-        std::cin >> dest_option;
-        if (dest_option == 1) {
-          std::cout << "Introduzca donde quiere que se encuentre el destino:\nIntroduzca la coordenada 'x': ";
-          std::cin >> xcoord;
-          assert(xcoord > 0);
-          std::cout << " y la coordenada 'y': ";
-          std::cin >> ycoord;
-          assert(ycoord > 0);
-          std::cout << std::endl;
-          default_board.ManualDestination(xcoord, ycoord);
+      std::cout << "Elija la Función Heurística que desea usar: \n(1) D. Manhattan\n(2) Euclídea" << std::endl;
+      std::cin >> heuristic;
+    
+      std::cout << "Elija como desea meter los obstaculos\n(1) Manual\n(2) Aleatorio" << std::endl;
+      std::cin >> obst_option;
+      if (obst_option == 1) { 
+        std::cout << "Ponga el %(nº entero) de obstaculos que desea que haya\n" << std::endl;
+        std::cin >> percent;
+        assert(percent > -1);
+        default_board.FillByPercent(percent);
+      } else  {
+        default_board.RandomFill();
+        std::cout << std::endl;
+      }
 
-        } else {
-          default_board.RandomDestination();
-        }
+      std::cout << "Elija como desea introducir el Destino\n(1) Destino Manual\n(2) Destino Aleatorio" << std::endl;
+      std::cin >> dest_option;
+      if (dest_option == 1) {
+        std::cout << "Introduzca donde quiere que se encuentre el destino:\nIntroduzca la coordenada 'x': ";
+        std::cin >> xcoord;
+        assert(xcoord > 0);
+        std::cout << " y la coordenada 'y': ";
+        std::cin >> ycoord;
+        assert(ycoord > 0);
+        std::cout << std::endl;
+        default_board.ManualDestination(xcoord, ycoord);
+      } else {
+        default_board.RandomDestination();
+      }
         std::cout << "Elija como desea introducir el Origen:\n(1) Origen Manual\n(2) Origen Aleatorio" << std::endl;
         std::cin >> orig_option;
         if (orig_option == 1) {
@@ -209,11 +243,14 @@ int main () {
         } else {
           default_board.RandomInsertTaxi();
         }
-        //llamada a la clase ALGORITHM
-        std::cout << "\033[2J\033[1;1H";
-        default_board.Write();
-        Algorithm alg_test(default_board);
-        
+        Algorithm tester(default_board, movement, heuristic);
+        t0=clock();
+        tester.A_Star();
+        t1 = clock();
+        tester.Write();
+        double time = (double(t1-t0)/CLOCKS_PER_SEC);
+        std::cout.precision(5);
+        std::cout << "Execution Time: " << std::fixed << time << std::endl;
       }
       break;
     }
@@ -221,18 +258,3 @@ int main () {
 
 }
 
-/*
-        char a = '>';
-        std::pair<int,int> c;
-        c.first = 2;
-        c.second = 4;
-        Cell tester(a);
-        tester.set_IsVisited(false);
-        tester.set_OpenCell(false);
-        tester.set_Coordinates(c);
-        std::cout << "mostrando cell: " << a << std::endl; 
-        std::cout << tester.get_CellValue() << std::endl;
-        tester.set_CellValue('^');
-        std::cout << tester.get_IsVisited() << tester.get_OpenCell() << 
-        tester.get_Coordinates()<< tester.get_XCoord() << std::endl;
-*/

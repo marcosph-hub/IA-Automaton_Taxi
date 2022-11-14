@@ -13,8 +13,10 @@ class Taxi {
     ~Taxi();
     void SetBody(char body_parametre);
     void SetTaxiPlace(int x, int y);
-    char GetBody();
-    std::pair<int,int> get_TaxiPlace();
-    int GetXCoord();
-    int GetYCoord();
+    char& GetBody();
+    std::pair<int,int>& get_TaxiPlace();
+    int& GetXCoord();
+    int& GetYCoord();
+    Taxi& operator=(const Taxi &taxi_);
+    bool operator==(const Taxi &taxi_)const;
 };
