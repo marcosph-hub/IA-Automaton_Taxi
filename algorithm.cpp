@@ -1,4 +1,10 @@
 #include "algorithm.h"
+#define RED "\e[0;31m"//
+#define GRN "\e[0;92m"//
+#define NC "\e[0m"
+#define YLW "\e[0;93m" //
+#define CYN "\e[1;96m"
+#define RR "\e[1;31m"
 
 Algorithm::Algorithm(Board& tableboard_, int movements, int fheuristic) {
   map = tableboard_;
@@ -228,7 +234,12 @@ void Algorithm::Write() {
     }
   } else {
     map.Write();
-    std::cout << "El destino es inaccesible" << std::endl;
+    std::cout << RED << "El destino es inaccesible" << std::endl;
   }
- std::cout << "Number of Iterations: " << iterations << std::endl;
+ std::cout << YLW << "Number of Iterations: " << GRN << iterations << std::endl;
+ std::cout << YLW << "Camino minimo:" << std::endl;
+  for (unsigned int i = 0; i < close_cells_list.size(); ++i) {
+    std::cout << NC << "[" << close_cells_list[i].get_Coordinates().first << "," << close_cells_list[i].get_Coordinates().second << "] ";
+  }
+  std::cout << std::endl;
 }

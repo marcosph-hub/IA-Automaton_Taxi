@@ -131,7 +131,7 @@ int main () {
       case 1: { //Entorno Manual
         std::cout << "Introduzca las dimensiones del entorno.\n Ancho del entorno (filas):\t"; 
         std::cin >> rows;
-        assert((rows > 0 && rows < 86 && "Nº filas entre 0 y 85"));
+        assert((rows > 0 && rows < 86 && "Numero de filas entre 0 y 85"));
   
         std::cout << "Largo del entorno (columnas):\t";
         std::cin >> columns;
